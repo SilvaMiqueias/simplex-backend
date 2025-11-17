@@ -8,7 +8,7 @@ CREATE TABLE transaction (
                               amount NUMERIC(15,2) NOT NULL,
                               description VARCHAR(255),
                               date_transaction timestamp NOT NULL,
-                              user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                              users_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                               created_at   timestamp default CURRENT_TIMESTAMP,
                               update_at   timestamp default CURRENT_TIMESTAMP
 );

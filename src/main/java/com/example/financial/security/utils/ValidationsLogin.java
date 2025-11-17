@@ -11,7 +11,8 @@ public @interface ValidationsLogin {
             "/report/public/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/auth/test/test"
 
     };
 
@@ -27,11 +28,13 @@ public @interface ValidationsLogin {
 
     // Endpoints que só podem ser acessador por usuários com permissão de cliente
     public static final String [] ENDPOINTS_CUSTOMER = {
-            "/auth/users/test/customer"
+            "/auth/users/test/customer",
+            "/api/v1/customer/**"
     };
 
     // Endpoints que só podem ser acessador por usuários com permissão de administrador
     public static final String [] ENDPOINTS_ADMIN = {
-            "/auth/users/test/administrator"
+            "/auth/users/test/administrator",
+            "/api/v1/admin/**"
     };
 }
