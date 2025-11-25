@@ -23,7 +23,6 @@ public @interface ValidationsLogin {
             "/auth/users/update-password",
             "/auth/test/**",
             "/report/auth/**",
-            "/api/v1/**"
     };
 
     // Endpoints que só podem ser acessador por usuários com permissão de cliente
