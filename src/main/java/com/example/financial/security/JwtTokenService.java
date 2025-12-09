@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,7 +18,7 @@ public class JwtTokenService {
     @Value("{jwt.secret}")
     private  String SECRET_KEY;
 
-    private static final String ISSUER = "pizzurg-api";
+    private static final String ISSUER = "simplex-api";
 
     public String generateToken(UserDetailsImp user){
         try {
@@ -33,6 +34,20 @@ public class JwtTokenService {
                     .sign(algorithm);
         }catch (JWTCreationException exception){
             throw new JWTCreationException("Erro ao gerar token", exception);
+        }
+    }
+
+    public String generateTempToken(UserDetailsImp user) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+            return JWT.create()
+                    .withIssuer(ISSUER)
+                    .withIssuedAt(new Date())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 3)))
+                    .withSubject(user.getUsername())
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new JWTCreationException("Erro ao gerar temp token", exception);
         }
     }
 

@@ -48,6 +48,13 @@ dependencies {
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
+    //google authenticator
+    implementation 'com.warrenstrange:googleauth:1.4.0'
+
+    //QR code
+    implementation 'com.google.zxing:core:3.5.1'
+    implementation 'com.google.zxing:javase:3.5.1'
+
 }
 
 dependencyManagement {
