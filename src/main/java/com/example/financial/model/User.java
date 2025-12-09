@@ -20,10 +20,17 @@ public class User {
     private String username;
     private String password;
     private String name;
+    private Boolean mfaEnabled;
+    private String mfaSecret;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
+
+    @PrePersist
+    protected void onCreate() {
+        mfaEnabled = false;
+    }
 }

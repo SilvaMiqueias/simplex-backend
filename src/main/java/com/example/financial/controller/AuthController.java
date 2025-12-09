@@ -2,10 +2,11 @@ package com.example.financial.controller;
 
 
 
-import com.example.financial.dto.LoginDTO;
-import com.example.financial.dto.PasswordDTO;
-import com.example.financial.dto.RecoveryJwtTokenDTO;
-import com.example.financial.dto.UserDTO;
+import com.example.financial.dto.*;
+import com.example.financial.model.User;
+import com.example.financial.security.JwtTokenService;
+import com.example.financial.security.MFAService;
+import com.example.financial.security.UserDetailsImp;
 import com.example.financial.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,12 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MFAService mfaService;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<RecoveryJwtTokenDTO> login(@RequestBody LoginDTO loginDTO){
@@ -69,4 +76,24 @@ public class AuthController {
     public ResponseEntity<String> getAdminAuthenticationTest(){
         return new ResponseEntity<>("Administrador autenticado com sucesso", HttpStatus.OK);
     }
+
+    @PostMapping("/mfa/verify")
+    public ResponseEntity<RecoveryJwtTokenDTO> verifyMfa(@RequestBody MfaVerifyDTO mfaDTO) {
+
+        if (mfaDTO.getTempSecret().startsWith("MFA_REQUIRED:")) {
+            mfaDTO.setTempSecret(mfaDTO.getTempSecret().substring("MFA_REQUIRED:".length()));
+        }
+
+        String username = jwtTokenService.getSubjectFromToken(mfaDTO.getTempSecret());
+        User user = userService.findByUsername(username);
+
+        if (!mfaService.validateTotp(user.getMfaSecret(), mfaDTO.getCode())) {
+            throw new RuntimeException("Código inválido!");
+        }
+
+        UserDetailsImp userDetails = new UserDetailsImp(user);
+        RecoveryJwtTokenDTO token = new RecoveryJwtTokenDTO(jwtTokenService.generateToken(userDetails), "", "");
+        return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
 }

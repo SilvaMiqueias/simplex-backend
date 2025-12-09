@@ -5,6 +5,7 @@ public @interface ValidationsLogin {
             "/auth/users/login",
             "/auth/users/login-customer",
             "/auth/users",
+            "/auth/users/mfa/verify",
             "/auth/users/create",
             "/auth/users/create-customer",
             "/cst/public/**",
