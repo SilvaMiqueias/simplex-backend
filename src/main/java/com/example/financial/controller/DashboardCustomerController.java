@@ -1,6 +1,7 @@
 package com.example.financial.controller;
 
-import com.example.financial.dto.interface_dto.DashboardCardDTO;
+import com.example.financial.dto.DashboardCardResultDTO;
+import com.example.financial.dto.interface_dto.DashboardChartDTO;
 import com.example.financial.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,12 @@ public class DashboardCustomerController {
     private DashboardService dashboardService;
 
     @GetMapping("/infos-cards")
-    public ResponseEntity<List<DashboardCardDTO>> infosCards() {
+    public ResponseEntity<DashboardCardResultDTO> infosCards() {
         return ResponseEntity.ok().body(dashboardService.getInfosToDashboardCardByUser());
+    }
+
+    @GetMapping("/infos-charts")
+    public ResponseEntity<List<DashboardChartDTO>> infosCharts() {
+        return ResponseEntity.ok().body(dashboardService.getInfosToDashboardChartCustomer());
     }
 }
