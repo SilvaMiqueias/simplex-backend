@@ -64,7 +64,7 @@ public class AuthController {
 
     @GetMapping("/get-user")
     public ResponseEntity<String> getUser(@RequestParam String email){
-        return new ResponseEntity<>("Novinho é o cara", HttpStatus.OK);
+        return new ResponseEntity<>("User", HttpStatus.OK);
     }
 
     @GetMapping("/test/customer")
@@ -80,11 +80,11 @@ public class AuthController {
     @PostMapping("/mfa/verify")
     public ResponseEntity<RecoveryJwtTokenDTO> verifyMfa(@RequestBody MfaVerifyDTO mfaDTO) {
 
-        if (mfaDTO.getTempSecret().startsWith("MFA_REQUIRED:")) {
-            mfaDTO.setTempSecret(mfaDTO.getTempSecret().substring("MFA_REQUIRED:".length()));
+        if (mfaDTO.getTempToken().startsWith("MFA_REQUIRED:")) {
+            mfaDTO.setTempToken(mfaDTO.getTempToken().substring("MFA_REQUIRED:".length()));
         }
 
-        String username = jwtTokenService.getSubjectFromToken(mfaDTO.getTempSecret());
+        String username = jwtTokenService.getSubjectFromToken(mfaDTO.getTempToken());
         User user = userService.findByUsername(username);
 
         if (!mfaService.validateTotp(user.getMfaSecret(), mfaDTO.getCode())) {
@@ -92,7 +92,7 @@ public class AuthController {
         }
 
         UserDetailsImp userDetails = new UserDetailsImp(user);
-        RecoveryJwtTokenDTO token = new RecoveryJwtTokenDTO(jwtTokenService.generateToken(userDetails), "", "");
+        RecoveryJwtTokenDTO token = new RecoveryJwtTokenDTO(jwtTokenService.generateToken(userDetails), "", "", "", user.getRoles().get(0).getName());
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 

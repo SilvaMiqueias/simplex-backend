@@ -1,6 +1,7 @@
 package com.example.financial.repository;
 
 import com.example.financial.dto.interface_dto.DashboardCardDTO;
+import com.example.financial.dto.interface_dto.DashboardChartDTO;
 import com.example.financial.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,7 +26,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
                     "GROUP BY u.id;",
             nativeQuery = true
     )
-    public List<DashboardCardDTO> getInfosToDashboardCardByUser(@Param("userId") Long userId, @Param("month") Integer month, @Param("year") Integer year);
+    public DashboardCardDTO getInfosToDashboardCardByUser(@Param("userId") Long userId, @Param("month") Integer month, @Param("year") Integer year);
 
 
     @Query(
@@ -39,5 +40,52 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
                     "GROUP BY ts.users_id;",
             nativeQuery = true
     )
-    public List<DashboardCardDTO> getInfosToDashboardCardByAdmin( @Param("month") Integer month, @Param("year") Integer year);
+    public DashboardCardDTO getInfosToDashboardCardByAdmin( @Param("month") Integer month, @Param("year") Integer year);
+
+
+    @Query(
+            value = "WITH meses AS ( " +
+                    "  SELECT " +
+                    "    date_trunc( " +
+                    "      'month', " +
+                    "      CURRENT_DATE - INTERVAL '5 months' " +
+                    "    ) + (INTERVAL '1 month' * gs) AS months " +
+                    "  FROM generate_series(0, 5) gs " +
+                    ") " +
+                    "SELECT " +
+                    "  m.months AS months, " +
+                    "  COALESCE(SUM(CASE WHEN ts.transaction_type = 0 THEN ts.amount END), 0) AS income, " +
+                    "  COALESCE(SUM(CASE WHEN ts.transaction_type = 1 THEN ts.amount END), 0) AS expense " +
+                    "FROM meses m " +
+                    "LEFT JOIN transaction ts " +
+                    "  ON date_trunc('month', ts.date_transaction) = m.months " +
+                    "  AND ts.users_id = :userId " +
+                    "GROUP BY m.months " +
+                    "ORDER BY m.months ",
+            nativeQuery = true
+    )
+    List<DashboardChartDTO> getInfosToDashboardChartByCustomer(@Param("userId") Long userId);
+
+
+    @Query(
+            value = "WITH meses AS ( " +
+                    "  SELECT " +
+                    "    date_trunc( " +
+                    "      'month', " +
+                    "      CURRENT_DATE - INTERVAL '5 months' " +
+                    "    ) + (INTERVAL '1 month' * gs) AS months " +
+                    "  FROM generate_series(0, 5) gs " +
+                    ") " +
+                    "SELECT " +
+                    "  m.months AS months, " +
+                    "  COALESCE(SUM(CASE WHEN ts.transaction_type = 0 THEN ts.amount END), 0) AS income, " +
+                    "  COALESCE(SUM(CASE WHEN ts.transaction_type = 1 THEN ts.amount END), 0) AS expense " +
+                    "FROM meses m " +
+                    "LEFT JOIN transaction ts " +
+                    "  ON date_trunc('month', ts.date_transaction) = m.months " +
+                    "GROUP BY m.months " +
+                    "ORDER BY m.months ",
+            nativeQuery = true
+    )
+    List<DashboardChartDTO> getInfosToDashboardChartByAdmin();
 }

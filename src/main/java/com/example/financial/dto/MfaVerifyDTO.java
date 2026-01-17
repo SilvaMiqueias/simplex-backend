@@ -8,6 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MfaVerifyDTO {
-    String tempSecret;
+    String tempToken;
     Integer code;
 }

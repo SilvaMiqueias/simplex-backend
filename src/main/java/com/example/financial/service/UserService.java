@@ -1,7 +1,6 @@
 package com.example.financial.service;
 
 
-
 import com.example.financial.dto.LoginDTO;
 import com.example.financial.dto.PasswordDTO;
 import com.example.financial.dto.RecoveryJwtTokenDTO;
@@ -15,14 +14,11 @@ import com.example.financial.security.MFAService;
 import com.example.financial.security.SecurityConfig;
 import com.example.financial.security.UserDetailsImp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -46,50 +42,43 @@ public class UserService {
     @Autowired
     private MFAService mfaService;
 
+    public RecoveryJwtTokenDTO authenticateUser(LoginDTO loginDTO) {
+        return authenticate(loginDTO, true);
+    }
 
-    public RecoveryJwtTokenDTO authenticateUser(LoginDTO loginDTO){
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+    public RecoveryJwtTokenDTO authenticateUserCustomer(LoginDTO loginDTO) {
+        return authenticate(loginDTO, false);
+    }
 
-        Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+    private RecoveryJwtTokenDTO authenticate(LoginDTO loginDTO, boolean requireAdminRole) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword())
+        );
 
         UserDetailsImp userDetailsImp = (UserDetailsImp) authentication.getPrincipal();
+        User user = userDetailsImp.getUser();
 
-        if (!userDetailsImp.getUser().getRoles().get(0).getName().equals(RoleName.ROLE_ADMINISTRATOR))
-            return null;
+//        if (requireAdminRole && !user.getRoles().get(0).getName().equals(RoleName.ROLE_ADMINISTRATOR)) {
+//            return null;
+//        }
 
-        if (!userDetailsImp.getUser().getMfaEnabled()) {
-            User user = userDetailsImp.getUser();
+        String tempToken = jwtTokenService.generateTempToken(userDetailsImp);
 
-            String tempToken = jwtTokenService.generateTempToken(userDetailsImp);
+        if (!user.getMfaEnabled()) {
             String secret = mfaService.generateSecret();
             user.setMfaSecret(secret);
             user.setMfaEnabled(true);
             userRepository.save(user);
 
-            String otpAuthURL = mfaService.getOtpAuthURL(user.getUsername(), secret, "Simplex");
-            String qrCodeBase64 = mfaService.generateQrCodeBase64(otpAuthURL);
-
-            return new RecoveryJwtTokenDTO("MFA_REQUIRED:" + tempToken, "MFA_REQUIRED:" + tempToken, qrCodeBase64 );
+            return new RecoveryJwtTokenDTO("", "MFA_REQUIRED:" + tempToken, getQrCode(user.getUsername(), secret), "2fa_setup", user.getRoles().get(0).getName());
         }
 
-        String tempToken = jwtTokenService.generateTempToken(userDetailsImp);
-        return new RecoveryJwtTokenDTO("MFA_REQUIRED:" + tempToken, null, null);
-
+        return new RecoveryJwtTokenDTO("", "MFA_REQUIRED:" + tempToken, getQrCode(user.getUsername(), user.getMfaSecret()), "2fa_required", user.getRoles().get(0).getName());
     }
 
-    public RecoveryJwtTokenDTO authenticateUserCustomer(LoginDTO loginDTO){
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
-
-        Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-
-        UserDetailsImp userDetailsImp = (UserDetailsImp) authentication.getPrincipal();
-
-
-
-//        if (!userDetailsImp.getUser().getRoles().get(0).getName().equals(RoleName.ROLE_CUSTOMER))
-//            return null;
-
-        return new RecoveryJwtTokenDTO(jwtTokenService.generateToken(userDetailsImp), "", "");
+    public String getQrCode(String email, String secret) {
+        String otpAuthURL = mfaService.getOtpAuthURL(email, secret, "Simplex");
+        return mfaService.generateQrCodeBase64(otpAuthURL);
     }
 
     public void createUser(UserDTO userDTO){

@@ -5,10 +5,7 @@ import com.example.financial.service.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,5 +24,16 @@ public class BudgetController {
     @PostMapping("/create")
     public ResponseEntity<BudgetDTO> create(@RequestBody BudgetDTO budgetDTO){
         return   ResponseEntity.ok().body(budgetService.createBudget(budgetDTO));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<BudgetDTO> update(@RequestBody BudgetDTO budgetDTO){
+        return   ResponseEntity.ok().body(budgetService.update(budgetDTO));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> delete(@RequestParam("id") int id){
+        budgetService.deleteBudget(id);
+        return  ResponseEntity.ok().build();
     }
 }
