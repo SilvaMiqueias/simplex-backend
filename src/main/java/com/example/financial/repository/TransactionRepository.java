@@ -36,8 +36,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
                     "    COALESCE(COUNT(ts.id), 0) AS quantity " +
                     "FROM transaction ts " +
                     "WHERE EXTRACT(MONTH FROM ts.date_transaction) = :month " +
-                    "  AND EXTRACT(YEAR  FROM ts.date_transaction) = :year " +
-                    "GROUP BY ts.users_id;",
+                    "  AND EXTRACT(YEAR  FROM ts.date_transaction) = :year ",
             nativeQuery = true
     )
     public DashboardCardDTO getInfosToDashboardCardByAdmin( @Param("month") Integer month, @Param("year") Integer year);

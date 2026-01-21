@@ -36,8 +36,8 @@ public class TransactionCustomerController {
         return   ResponseEntity.ok().body(transactionService.updateTransaction(transactionDTO));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam("id") int id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id){
         transactionService.deleteTransaction(id);
         return  ResponseEntity.ok().build();
     }
