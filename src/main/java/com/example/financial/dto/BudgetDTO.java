@@ -17,7 +17,7 @@ public class BudgetDTO {
     private CategoryEnum category;
     private BigDecimal amount;
     private String description;
-    private LocalDateTime date_reference;
+    private LocalDateTime dateReference;
     private User userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

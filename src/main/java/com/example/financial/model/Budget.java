@@ -31,7 +31,7 @@ public class Budget {
     private String description;
 
     @Column(name = "date_reference")
-    private LocalDateTime date_reference;
+    private LocalDateTime dateReference;
 
     @ManyToOne
     @JoinColumn(name = "users_id", nullable = false)
