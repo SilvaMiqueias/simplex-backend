@@ -1,6 +1,8 @@
 package com.example.financial.controller;
 
 import com.example.financial.dto.BudgetDTO;
+import com.example.financial.dto.BudgetResultDTO;
+import com.example.financial.dto.interface_dto.BudgetChartDTO;
 import com.example.financial.service.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,15 @@ public class BudgetController {
     @Autowired
     private BudgetService budgetService;
 
+
     @GetMapping("/find-all")
-    public ResponseEntity<List<BudgetDTO>> findAll(){
-        return   ResponseEntity.ok().body(budgetService.getAllBudgets());
+    public ResponseEntity<List<BudgetChartDTO>> findAll(BudgetResultDTO budgetDTO) {
+        return ResponseEntity.ok().body(budgetService.getAllBudgetsToChart(budgetDTO));
+    }
+
+    @GetMapping("/find-all-chart")
+    public ResponseEntity<List<BudgetChartDTO>> findAllChart(BudgetResultDTO budgetDTO) {
+        return   ResponseEntity.ok().body(budgetService.getAllBudgetsToChart(budgetDTO));
     }
 
     @PostMapping("/create")
