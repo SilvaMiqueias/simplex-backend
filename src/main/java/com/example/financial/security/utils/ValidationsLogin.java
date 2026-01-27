@@ -13,7 +13,8 @@ public @interface ValidationsLogin {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/auth/test/test"
+            "/auth/test/test",
+            "/api/v1/currency/**"
 
     };
 
