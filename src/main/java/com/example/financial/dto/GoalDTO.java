@@ -15,6 +15,7 @@ public class GoalDTO {
     private Integer id;
     private CategoryEnum category;
     private BigDecimal amount;
+    private BigDecimal currentAmount; // Valor atual economizado/gasto na categoria
     private String description;
     private LocalDateTime dateStart;
     private LocalDateTime dateEnd;
