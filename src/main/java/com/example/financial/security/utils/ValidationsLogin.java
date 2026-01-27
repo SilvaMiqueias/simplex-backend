@@ -29,7 +29,8 @@ public @interface ValidationsLogin {
     // Endpoints que só podem ser acessador por usuários com permissão de cliente
     public static final String [] ENDPOINTS_CUSTOMER = {
             "/auth/users/test/customer",
-            "/api/v1/customer/**"
+            "/api/v1/customer/**",
+            "/api/v1/currency/**"
     };
 
     // Endpoints que só podem ser acessador por usuários com permissão de administrador
