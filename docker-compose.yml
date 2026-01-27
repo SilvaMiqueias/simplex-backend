@@ -1,0 +1,63 @@
+# Simplex - Gerenciador de Finanças Pessoais
+# Podman Compose para desenvolvimento local
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: simplex-db
+    environment:
+      POSTGRES_DB: financial
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - simplex-db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:z,ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d financial"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simplex-network
+
+  backend:
+    build:
+      context: ./simplex-backend
+      dockerfile: Containerfile
+    container_name: simplex-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/financial
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_FLYWAY_ENABLED: "false"
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - simplex-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./simplex-frotend
+      dockerfile: Containerfile
+    container_name: simplex-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - simplex-network
+    restart: unless-stopped
+
+networks:
+  simplex-network:
+    driver: bridge
+
+volumes:
+  simplex-db-data:
