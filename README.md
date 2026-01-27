@@ -498,21 +498,51 @@ test: adiciona testes de autenticação
 
 ## 🚀 Como Executar
 
-### Pré-requisitos
+### Usando Docker Compose (Recomendado)
+
+1. **Pré-requisitos:**
+   - [Podman](https://podman.io/) ou [Docker](https://www.docker.com/)
+   - Git
+
+2. **Suba todos os serviços:**
+
+```bash
+# Clone o repositório
+git clone https://github.com/SilvaMiqueias/simplex-backend.git
+cd simplex-backend
+
+# Suba os containers (backend, banco, frontend)
+podman compose up -d
+# ou
+docker compose up -d
+```
+
+3. **Acesse:**
+   - Backend API: http://localhost:8081
+   - Frontend: http://localhost:3000
+   - Banco de dados: localhost:5432 (usuário: postgres)
+
+> O arquivo `docker-compose.yml` já está pronto para uso. O frontend será servido em http://localhost:3000 e o backend em http://localhost:8081.
+
+---
+
+### Execução Manual (Java/Gradle)
+
+#### Pré-requisitos
 
 - Java 17+
 - Gradle 8+
 - PostgreSQL 14+
 - Git
 
-### Configuração do Banco de Dados
+#### Configuração do Banco de Dados
 
 ```sql
 -- Criar database
 CREATE DATABASE financial;
 ```
 
-### Configurar application.properties
+#### Configurar application.properties
 
 ```properties
 # Localização: src/main/resources/application.properties
@@ -534,7 +564,7 @@ springdoc.api-docs.path=/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 ```
 
-### Executar Aplicação
+#### Executar Aplicação
 
 ```bash
 # Clonar repositório
@@ -549,13 +579,13 @@ cd simplex-backend
 java -jar build/libs/financial-0.0.1-SNAPSHOT.jar
 ```
 
-### Verificar Funcionamento
+#### Verificar Funcionamento
 
 - **API**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **Health Check**: http://localhost:8080/actuator/health
 
-### Testar Endpoints
+#### Testar Endpoints
 
 ```bash
 # Criar usuário
