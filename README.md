@@ -46,3 +46,32 @@ Fornecer uma API robusta e segura para:
 | **QR Code** | ZXing 3.5.1 |
 | **Mapeamento** | MapStruct 1.5.3 |
 | **Utilitários** | Lombok |
+
+---
+
+## 📖 Introdução
+
+### Contexto do Projeto
+
+O Simplex Backend é a camada de serviços que sustenta toda a lógica de negócio do sistema de gerenciamento de finanças pessoais. A escolha do Spring Boot como framework principal se deve à sua robustez, segurança integrada e ampla adoção no mercado, proporcionando uma base sólida para APIs REST.
+
+### Problema que o Sistema Busca Resolver
+
+O backend foi projetado para:
+
+1. **Persistência Segura**: Armazenar dados financeiros de forma segura com PostgreSQL
+2. **Autenticação Robusta**: Implementar JWT com suporte a MFA (Google Authenticator)
+3. **APIs RESTful**: Fornecer endpoints bem estruturados e documentados
+4. **Controle de Acesso**: Gerenciar permissões diferenciadas (Admin/Customer)
+5. **Integridade de Dados**: Garantir consistência através de migrations com Flyway
+
+### Objetivos Específicos
+
+| Objetivo | Descrição |
+|----------|-----------|
+| **API REST Completa** | Endpoints para CRUD de transações, orçamentos e metas |
+| **Segurança Multinível** | Autenticação JWT + MFA com roles (ADMINISTRATOR, CUSTOMER) |
+| **Dashboard Analytics** | Endpoints para métricas e gráficos financeiros |
+| **Integração Externa** | Consumo de API de cotações de moedas (Frankfurter API) |
+| **Documentação Automática** | Swagger/OpenAPI para facilitar integração |
+| **Migrations** | Versionamento de schema do banco com Flyway |
