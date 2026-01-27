@@ -249,3 +249,197 @@ public class Goal {
 |--------|----------|-----------|
 | GET | `/infos-cards` | Dados dos cards (receitas, despesas, saldo) |
 | GET | `/infos-charts` | Dados para gráficos |
+
+---
+
+## ⚡ Funcionalidades Implementadas
+
+### 1. Sistema de Autenticação e Autorização
+
+**Descrição e Objetivo**  
+API de autenticação robusta com JWT e suporte a MFA (Multi-Factor Authentication) via Google Authenticator.
+
+**Fluxo de Execução**
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PROCESSO DE AUTENTICAÇÃO                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│  1. POST /auth/users/login-customer com {username, password}             │
+│  2. UserService.authenticateUserCustomer():                              │
+│     → Busca usuário no banco                                             │
+│     → Valida senha com BCryptPasswordEncoder                             │
+│     → Verifica role CUSTOMER                                             │
+│  3. Se user.mfaEnabled == true:                                          │
+│     → Gera token temporário (5 min)                                      │
+│     → Retorna {token: "MFA_REQUIRED:...", requireMfa: true}              │
+│  4. POST /auth/users/mfa/verify com {tempToken, code}                    │
+│     → MFAService.validateTotp(secret, code)                              │
+│     → Se válido, gera JWT definitivo (24h)                               │
+│  5. Se MFA não habilitado:                                               │
+│     → JwtTokenService.generateToken()                                    │
+│     → Retorna JWT com claims (username, roles)                           │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Segurança Implementada**
+```java
+// SecurityConfig.java
+.authorizeHttpRequests(auth -> auth
+    .requestMatchers(ENDPOINTS_NOT_REQUIRED).permitAll()
+    .requestMatchers(ENDPOINTS_ADMIN).hasRole("ADMINISTRATOR")
+    .requestMatchers(ENDPOINTS_CUSTOMER).hasRole("CUSTOMER")
+    .anyRequest().authenticated()
+)
+```
+
+---
+
+### 2. CRUD de Transações Financeiras
+
+**Descrição e Objetivo**  
+API REST completa para gerenciamento de transações, com suporte a categorização, tipos de transação e métodos de pagamento.
+
+**Endpoints e Lógica**
+
+```java
+// TransactionCustomerController.java
+@PostMapping("/create")
+public ResponseEntity<TransactionDTO> create(@RequestBody TransactionDTO dto) {
+    return ResponseEntity.ok().body(transactionService.createTransaction(dto));
+}
+
+// TransactionService.java (lógica)
+public TransactionDTO createTransaction(TransactionDTO dto) {
+    User user = authenticationUtil.getAuthenticatedUser();  // Extrai do JWT
+    Transaction entity = transactionMapper.toEntity(dto);
+    entity.setUserId(user);
+    return transactionMapper.toDto(transactionRepository.save(entity));
+}
+```
+
+**Categorias Suportadas**
+```java
+public enum CategoryEnum {
+    FOOD,           // Alimentação
+    TRANSPORT,      // Transporte
+    HOUSING,        // Moradia
+    HEALTH,         // Saúde
+    EDUCATION,      // Educação
+    ENTERTAINMENT,  // Entretenimento
+    CLOTHING,       // Vestuário
+    OTHERS          // Outros
+}
+```
+
+---
+
+### 3. Gerenciamento de Orçamentos
+
+**Descrição e Objetivo**  
+API para definição de limites de gastos mensais por categoria.
+
+**Fluxo de Dados**
+
+```
+Request: POST /api/v1/customer/budget/create
+Body: {
+    "category": "FOOD",
+    "amount": 1500.00,
+    "description": "Orçamento alimentação janeiro",
+    "dateReference": "2026-01-01T00:00:00"
+}
+
+↓ BudgetController.create()
+↓ BudgetService.createBudget()
+↓ BudgetMapper.toEntity()
+↓ BudgetRepository.save()
+↓ BudgetMapper.toDto()
+
+Response: {
+    "id": 1,
+    "category": "FOOD",
+    "amount": 1500.00,
+    "description": "Orçamento alimentação janeiro",
+    ...
+}
+```
+
+---
+
+### 4. Dashboard Analytics
+
+**Descrição e Objetivo**  
+Endpoints que fornecem dados agregados para visualização no dashboard do frontend.
+
+**Cálculos Realizados**
+
+```java
+// DashboardService.java
+public DashboardCardResultDTO getInfosToDashboardCardByUser() {
+    User user = authenticationUtil.getAuthenticatedUser();
+    
+    // Busca transações do mês atual
+    DashboardCardDTO currentMonth = transactionRepository
+        .findSumByUserAndMonth(user.getId(), LocalDate.now());
+    
+    // Busca transações do mês anterior
+    DashboardCardDTO previousMonth = transactionRepository
+        .findSumByUserAndMonth(user.getId(), LocalDate.now().minusMonths(1));
+    
+    return new DashboardCardResultDTO(currentMonth, previousMonth);
+}
+```
+
+**Resposta**
+```json
+{
+    "currentMonth": {
+        "income": 5000.00,
+        "expense": 3200.00
+    },
+    "previousMonth": {
+        "income": 4500.00,
+        "expense": 3000.00
+    }
+}
+```
+
+---
+
+### 5. Integração com API de Cotações
+
+**Descrição e Objetivo**  
+Consumo da API Frankfurter para obter cotações de moedas em tempo real.
+
+**Implementação**
+
+```java
+// CurrencyService.java
+@Service
+public class CurrencyService {
+    
+    @Autowired
+    private RestTemplate restTemplate;
+    
+    public void getRates() {
+        LocalDate today = getPreviousBusinessDay(LocalDate.now());
+        LocalDate yesterday = getPreviousBusinessDay(today.minusDays(1));
+        
+        String url = "https://api.frankfurter.dev/v1/"
+            + yesterday + ".." + today + "?base=BRL";
+            
+        RatesDetailDTO response = restTemplate.getForObject(url, RatesDetailDTO.class);
+        // Processa cotações...
+    }
+    
+    // Ajusta para dias úteis (ignora fins de semana)
+    private LocalDate getPreviousBusinessDay(LocalDate date) {
+        while (date.getDayOfWeek() == DayOfWeek.SATURDAY ||
+               date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            date = date.minusDays(1);
+        }
+        return date;
+    }
+}
+```
