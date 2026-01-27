@@ -443,3 +443,149 @@ public class CurrencyService {
     }
 }
 ```
+
+---
+
+## 🔧 Implementação e Qualidade do Código
+
+### Padrões de Código Adotados
+
+#### Java/Spring
+- **Arquitetura em Camadas**: Controller → Service → Repository
+- **DTOs**: Separação entre entidades e objetos de transferência
+- **MapStruct**: Mapeamento automático Entity ↔ DTO
+- **Lombok**: Redução de boilerplate (@Getter, @Setter, @Builder)
+
+#### Nomenclatura
+- **Classes**: PascalCase (`TransactionService`, `UserDTO`)
+- **Métodos**: camelCase (`createTransaction`, `findById`)
+- **Pacotes**: lowercase (`com.example.financial.service`)
+- **Constantes**: UPPER_SNAKE_CASE (`ENDPOINTS_ADMIN`)
+- **Endpoints REST**: kebab-case (`/find-all`, `/find-by-id`)
+
+#### Organização de Pacotes
+```
+com.example.financial/
+├── config/          # Configurações (Swagger, RestTemplate)
+├── controller/      # Endpoints REST
+├── dto/             # Data Transfer Objects
+├── mapper/          # Conversores Entity ↔ DTO
+├── model/           # Entidades JPA
+│   └── enumerador/  # Enums
+├── repository/      # Interfaces JPA
+├── security/        # Configuração de segurança
+│   └── utils/       # Utilitários de autenticação
+└── service/         # Lógica de negócio
+```
+
+### Controle de Versão (Git)
+
+#### Padrão de Commits
+```
+docs: adiciona documentação da API
+feat: implementa endpoint de transações
+fix: corrige validação de JWT
+refactor: extrai lógica para service
+test: adiciona testes de autenticação
+```
+
+#### Estrutura do Repositório
+- Branch principal: `master`
+- README.md com documentação técnica
+- .gitignore configurado para Gradle/Java
+
+---
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+
+- Java 17+
+- Gradle 8+
+- PostgreSQL 14+
+- Git
+
+### Configuração do Banco de Dados
+
+```sql
+-- Criar database
+CREATE DATABASE financial;
+```
+
+### Configurar application.properties
+
+```properties
+# Localização: src/main/resources/application.properties
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/financial
+spring.datasource.username=postgres
+spring.datasource.password=sua_senha
+
+spring.jpa.hibernate.ddl-auto=validate
+spring.flyway.enabled=true
+spring.flyway.baseline-on-migrate=true
+
+# JWT
+jwt.secret=sua-chave-secreta-muito-segura-aqui
+jwt.expiration=86400000
+
+# Swagger
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+```
+
+### Executar Aplicação
+
+```bash
+# Clonar repositório
+git clone https://github.com/SilvaMiqueias/simplex-backend.git
+cd simplex-backend
+
+# Executar com Gradle
+./gradlew bootRun
+
+# Ou gerar JAR e executar
+./gradlew build
+java -jar build/libs/financial-0.0.1-SNAPSHOT.jar
+```
+
+### Verificar Funcionamento
+
+- **API**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Health Check**: http://localhost:8080/actuator/health
+
+### Testar Endpoints
+
+```bash
+# Criar usuário
+curl -X POST http://localhost:8080/auth/users/create-customer \
+  -H "Content-Type: application/json" \
+  -d '{"username":"teste@email.com","password":"senha123","name":"Teste"}'
+
+# Login
+curl -X POST http://localhost:8080/auth/users/login-customer \
+  -H "Content-Type: application/json" \
+  -d '{"username":"teste@email.com","password":"senha123"}'
+
+# Usar token retornado nas próximas requisições
+curl -X GET http://localhost:8080/api/v1/customer/transaction/find-all \
+  -H "Authorization: Bearer {seu_token_jwt}"
+```
+
+---
+
+## 📚 Referências
+
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Spring Security](https://spring.io/projects/spring-security)
+- [Flyway Migrations](https://flywaydb.org/)
+- [MapStruct](https://mapstruct.org/)
+- [JWT.io](https://jwt.io/)
+- [Frankfurter API](https://www.frankfurter.app/)
+
+---
+
+## 📄 Licença
+
+Este projeto foi desenvolvido para fins acadêmicos como parte da disciplina de Programação para Internet do IFG.
