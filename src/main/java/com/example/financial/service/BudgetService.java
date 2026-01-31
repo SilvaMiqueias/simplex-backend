@@ -11,6 +11,7 @@ import com.example.financial.security.utils.AuthenticationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +26,10 @@ public class BudgetService {
     private AuthenticationUtil authenticationUtil;
 
 
+    public BudgetDTO getBudget(Integer id) {
+        return budgetRepository.findById(id).map(BudgetMapper.INSTANCE::budgetToBudgetDTO).orElse(null);
+    }
+
     public List<BudgetDTO> getAllBudgets() {
         List<Budget> budgets = budgetRepository.findAllByUserId_Id(authenticationUtil.getUserLogged().getId());
         return budgets.stream().map(BudgetMapper.INSTANCE::budgetToBudgetDTO).collect(Collectors.toList());
@@ -38,7 +43,7 @@ public class BudgetService {
         Budget budget = BudgetMapper.INSTANCE.budgetDTOToBudget(budgetDTO);
         User user = authenticationUtil.getUserLogged();
 
-        if(existsBudget(user.getId(), budgetDTO.getDateReference().getMonthValue(), budgetDTO.getDateReference().getYear(), budgetDTO.getCategory().ordinal())) {
+        if(existsBudget(user.getId(), budgetDTO.getDateReference().getMonthValue(), budgetDTO.getDateReference().getYear(), budgetDTO.getCategory().ordinal(), budgetDTO.getAmount())) {
             throw new RuntimeException("Orçamento já existe!");
         }
 
@@ -48,16 +53,26 @@ public class BudgetService {
     }
 
     public BudgetDTO  update(BudgetDTO budgetDTO) {
-        Budget budget = BudgetMapper.INSTANCE.budgetDTOToBudget(budgetDTO);
-        User user = authenticationUtil.getUserLogged();
 
-        //validar se é o mesmo
-//        if(existsBudget(user.getId(), budgetDTO.getDateReference().getMonthValue(), budgetDTO.getDateReference().getYear(), budgetDTO.getCategory().ordinal())) {
-//            throw new RuntimeException("Orçamento já existe!");
-//        }
+        Optional<Budget> budget = budgetRepository.findById(budgetDTO.getId());
 
-        budget = budgetRepository.save(budget);
-        return   BudgetMapper.INSTANCE.budgetToBudgetDTO(budget);
+        if(budget.isPresent()) {
+            User user = authenticationUtil.getUserLogged();
+
+            //validar se é o mesmo
+            if(existsBudget(user.getId(), budgetDTO.getDateReference().getMonthValue(), budgetDTO.getDateReference().getYear(), budgetDTO.getCategory().ordinal(), budgetDTO.getAmount())) {
+                throw new RuntimeException("Orçamento já existe!");
+            }
+
+            budget.get().setUserId(user);
+            budget.get().setCategory(budgetDTO.getCategory());
+            budget.get().setDateReference(budgetDTO.getDateReference());
+            budget.get().setDescription(budgetDTO.getDescription());
+            budget.get().setAmount(budgetDTO.getAmount());
+            budgetRepository.save(budget.get());
+        }
+
+        return   BudgetMapper.INSTANCE.budgetToBudgetDTO(budget.orElse(new Budget()));
     }
 
     public void deleteBudget(Integer idBudget) {
@@ -65,7 +80,7 @@ public class BudgetService {
         budget.ifPresent(value -> budgetRepository.delete(value));
     }
 
-    public Boolean existsBudget(Long id, Integer month, Integer year, Integer category) {
-        return budgetRepository.existsByUserAndDate(id, month, year, category);
+    public Boolean existsBudget(Long id, Integer month, Integer year, Integer category, BigDecimal amount) {
+        return budgetRepository.existsByUserAndDate(id, month, year, category, amount);
     }
 }

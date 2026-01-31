@@ -19,6 +19,12 @@ public class BudgetController {
     private BudgetService budgetService;
 
 
+    @GetMapping("/find-by")
+    public ResponseEntity<BudgetDTO> findBy(@RequestParam Integer id) {
+        return ResponseEntity.ok().body(budgetService.getBudget(id));
+    }
+
+
     @GetMapping("/find-all")
     public ResponseEntity<List<BudgetChartDTO>> findAll(BudgetResultDTO budgetDTO) {
         return ResponseEntity.ok().body(budgetService.getAllBudgetsToChart(budgetDTO));
@@ -39,8 +45,8 @@ public class BudgetController {
         return   ResponseEntity.ok().body(budgetService.update(budgetDTO));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam("id") int id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") int id){
         budgetService.deleteBudget(id);
         return  ResponseEntity.ok().build();
     }

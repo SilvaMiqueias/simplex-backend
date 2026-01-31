@@ -2,6 +2,7 @@ package com.example.financial.service;
 
 import com.example.financial.dto.RatesDTO;
 import com.example.financial.dto.RatesDetailDTO;
+import com.example.financial.dto.RatesListDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,8 +16,7 @@ public class CurrencyService {
     @Autowired
     private RestTemplate restTemplate;
 
-//    @Scheduled(cron = "0 0/3 * * * ?")
-    public void getRates() {
+    public RatesListDTO getRates() {
         LocalDate today = LocalDate.now();
         today = getPreviousBusinessDay(today);
 
@@ -29,6 +29,8 @@ public class CurrencyService {
         assert response != null;
         RatesDTO yesterdayRates = response.getRates().get(yesterday.toString());
         RatesDTO todayRates = response.getRates().get(today.toString());
+
+        return new RatesListDTO(today, yesterday, todayRates, yesterdayRates);
     }
 
     public static LocalDate getPreviousBusinessDay(LocalDate date) {

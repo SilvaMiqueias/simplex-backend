@@ -1,5 +1,6 @@
 package com.example.financial.controller;
 
+import com.example.financial.dto.BudgetResultDTO;
 import com.example.financial.dto.GoalDTO;
 import com.example.financial.service.GoalService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class GoalController {
     private GoalService goalService;
 
     @GetMapping("/find-all")
-    public ResponseEntity<List<GoalDTO>> findAll(){
+    public ResponseEntity<List<GoalDTO>> findAll(BudgetResultDTO budgetDTO){
         return   ResponseEntity.ok().body(goalService.getAllGoals());
     }
 
