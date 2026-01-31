@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -145,6 +146,18 @@ public class UserService {
     public User findByUsername(String username){
         return this.userRepository.findByUsername(username).orElse(null);
     }
+
+    public UserDTO getByEmail(String username){
+        UserDTO dto = new UserDTO();
+        User user = this.userRepository.findByUsername(username).orElse(null);
+        if(user != null){
+            dto.setId(user.getId().intValue());
+            dto.setUsername(user.getUsername());
+            dto.setName(user.getName());
+        }
+        return dto;
+    }
+
 
     public void save(User user){
         userRepository.save(user);

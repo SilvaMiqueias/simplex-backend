@@ -63,8 +63,8 @@ public class AuthController {
     }
 
     @GetMapping("/get-user")
-    public ResponseEntity<String> getUser(@RequestParam String email){
-        return new ResponseEntity<>("User", HttpStatus.OK);
+    public ResponseEntity<UserDTO> getUser(@RequestParam String email){
+        return new ResponseEntity<>(userService.getByEmail(email), HttpStatus.OK);
     }
 
     @GetMapping("/test/customer")
