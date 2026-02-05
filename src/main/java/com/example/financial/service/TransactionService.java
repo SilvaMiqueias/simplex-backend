@@ -22,7 +22,7 @@ public class TransactionService {
     private AuthenticationUtil authenticationUtil;
 
     public List<TransactionDTO> getAllTransactions() {
-        return transactionRepository.findAll().stream().map(TransactionMapper.INSTANCE::transactionToTransactionDTO).collect(Collectors.toList());
+        return transactionRepository.findAllByUserId_Id(authenticationUtil.getUserLogged().getId()).stream().map(TransactionMapper.INSTANCE::transactionToTransactionDTO).collect(Collectors.toList());
     }
 
     public TransactionDTO getTransactionById(Integer id) {

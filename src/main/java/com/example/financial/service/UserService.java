@@ -88,6 +88,8 @@ public class UserService {
                 .password(securityConfig.passwordEncoder().encode(userDTO.getPassword()))
                 .name(userDTO.getName())
                 .roles(List.of( role != null ? role : Role.builder().name(userDTO.getRole()).build()))
+                .mfaEnabled(true)
+                .mfaSecret(mfaService.generateSecret())
                 .build();
 
         userRepository.save(newUser);
@@ -102,6 +104,7 @@ public class UserService {
                 .password(securityConfig.passwordEncoder().encode(userDTO.getPassword()))
                 .name(userDTO.getName())
                 .roles(List.of(roleService.findRole(RoleName.ROLE_CUSTOMER)))
+                .mfaSecret(mfaService.generateSecret()).mfaEnabled(true)
                 .build();
 
         userRepository.save(newUser);
