@@ -12,7 +12,7 @@ public @interface ValidationsLogin {
             "/report/public/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/v3/api-docs/**",
+            "/v3/**",
             "/auth/test/test"
 
     };
