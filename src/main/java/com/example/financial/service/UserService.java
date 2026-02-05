@@ -108,7 +108,7 @@ public class UserService {
     }
 
 
-    public RecoveryJwtTokenDTO updateUser(UserDTO userDTO){
+    public void updateUser(UserDTO userDTO){
         User user = this.userRepository.findById(userDTO.getId().longValue()).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
         User verifyEmail = this.userRepository.findByUsername(userDTO.getUsername()).orElse(null);
 
@@ -120,9 +120,8 @@ public class UserService {
 
        user.setName(userDTO.getName());
        user.setUsername(userDTO.getUsername());
-       userRepository.save(user);
-
-      return   authenticateUser(new LoginDTO(user.getUsername(), userDTO.getPassword()));
+       user.setImage(userDTO.getImage());
+       userRepository.save(user);;
     }
 
     public RecoveryJwtTokenDTO updatePassword(PasswordDTO passwordDTO){
@@ -154,6 +153,7 @@ public class UserService {
             dto.setId(user.getId().intValue());
             dto.setUsername(user.getUsername());
             dto.setName(user.getName());
+            dto.setImage(user.getImage());
         }
         return dto;
     }

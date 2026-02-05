@@ -14,4 +14,5 @@ public class UserDTO {
     private String password;
     private String name;
     RoleName role;
+    private String image;
 }

@@ -2,6 +2,8 @@ package com.example.financial.controller;
 
 import com.example.financial.dto.BudgetResultDTO;
 import com.example.financial.dto.GoalDTO;
+import com.example.financial.dto.interface_dto.BudgetChartDTO;
+import com.example.financial.dto.interface_dto.GoalChartDTO;
 import com.example.financial.service.GoalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +34,14 @@ public class GoalController {
         return   ResponseEntity.ok().body(goalService.updateGoal(goalDTO));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam("id") int id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") int id){
         goalService.deleteGoal(id);
         return  ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/find-all-chart")
+    public ResponseEntity<List<GoalChartDTO>> findAllChart(BudgetResultDTO budgetDTO) {
+        return   ResponseEntity.ok().body(goalService.getAllGoalToChart(budgetDTO));
     }
 }

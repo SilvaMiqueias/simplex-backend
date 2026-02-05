@@ -53,8 +53,9 @@ public class AuthController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<RecoveryJwtTokenDTO> updateUser(@RequestBody UserDTO userDTO){
-        return new ResponseEntity<>(userService.updateUser(userDTO),HttpStatus.CREATED);
+    public ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO){
+        userService.updateUser(userDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/update-password")
