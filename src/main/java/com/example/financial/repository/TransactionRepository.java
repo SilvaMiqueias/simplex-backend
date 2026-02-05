@@ -87,4 +87,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             nativeQuery = true
     )
     List<DashboardChartDTO> getInfosToDashboardChartByAdmin();
+
+
+    List<Transaction> findAllByUserId_Id(@Param("userId") Long userId);
 }
