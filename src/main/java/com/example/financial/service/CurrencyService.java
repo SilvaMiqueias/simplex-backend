@@ -19,8 +19,14 @@ public class CurrencyService {
     public RatesListDTO getRates() {
         LocalDate today = LocalDate.now();
         today = getPreviousBusinessDay(today);
+        LocalDate yesterday = null;
 
-        LocalDate yesterday = today.minusDays(1);
+        if(today.getDayOfWeek() == DayOfWeek.TUESDAY) {
+            yesterday = today.minusDays(2);
+        }else{
+            yesterday = today.minusDays(1);
+        }
+
         yesterday = getPreviousBusinessDay(yesterday);
 
         String url = "https://api.frankfurter.dev/v1/".concat(yesterday.toString()).concat("..").concat(today.toString()).concat("?base=BRL");
@@ -37,7 +43,7 @@ public class CurrencyService {
 
         while (date.getDayOfWeek() == DayOfWeek.SATURDAY ||
                 date.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            date = date.minusDays(1);
+                 date = date.minusDays(1);
         }
 
         return date;

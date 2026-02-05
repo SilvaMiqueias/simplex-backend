@@ -1,6 +1,9 @@
 package com.example.financial.service;
 
+import com.example.financial.dto.BudgetResultDTO;
 import com.example.financial.dto.GoalDTO;
+import com.example.financial.dto.interface_dto.BudgetChartDTO;
+import com.example.financial.dto.interface_dto.GoalChartDTO;
 import com.example.financial.mapper.GoalMapper;
 import com.example.financial.model.Goal;
 import com.example.financial.repository.GoalRepository;
@@ -8,6 +11,9 @@ import com.example.financial.security.utils.AuthenticationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,6 +33,11 @@ public class GoalService {
     }
 
     public GoalDTO  createGoal(GoalDTO goalDTO) {
+
+        if(existsGoal(goalDTO.getCategory().ordinal(), goalDTO.getDateStart())) {
+            throw new RuntimeException("Orçamento já existe!");
+        }
+
         Goal goal = GoalMapper.INSTANCE.goalDTOToGoal(goalDTO);
         goal.setUserId(authenticationUtil.getUserLogged());
         goal = goalRepository.save(goal);
@@ -34,6 +45,11 @@ public class GoalService {
     }
 
     public GoalDTO  updateGoal(GoalDTO goalDTO) {
+
+        if(existsGoal(goalDTO.getCategory().ordinal(), goalDTO.getDateStart())) {
+            throw new RuntimeException("Orçamento já existe!");
+        }
+
         Goal goal = GoalMapper.INSTANCE.goalDTOToGoal(goalDTO);
         goal.setUserId(authenticationUtil.getUserLogged());
         goal = goalRepository.save(goal);
@@ -43,5 +59,13 @@ public class GoalService {
     public void deleteGoal(Integer goalId) {
         Optional<Goal> goal = goalRepository.findById(goalId);
         goal.ifPresent(value -> goalRepository.delete(value));
+    }
+
+    public List<GoalChartDTO> getAllGoalToChart(BudgetResultDTO budgetDTO) {
+        return   goalRepository.findAllGoalChartDTO(authenticationUtil.getUserLogged().getId(), budgetDTO.getReferenceDate());
+    }
+
+    public Boolean existsGoal(Integer category, LocalDateTime date) {
+        return goalRepository.existsGoalByUserCategoryAndPeriod(authenticationUtil.getUserLogged().getId(), category, date);
     }
 }
