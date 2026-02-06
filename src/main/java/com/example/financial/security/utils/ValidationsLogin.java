@@ -10,6 +10,7 @@ public @interface ValidationsLogin {
             "/auth/users/create-customer",
             "/cst/public/**",
             "/report/public/**",
+            "/swagger-ui/index.html",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/**",
@@ -24,7 +25,8 @@ public @interface ValidationsLogin {
             "/auth/users/update-password",
             "/auth/test/**",
             "/report/auth/**",
-            "/api/v1/public/**"
+            "/api/v1/public/**",
+            "authenticated/**"
     };
 
     // Endpoints que só podem ser acessador por usuários com permissão de cliente
