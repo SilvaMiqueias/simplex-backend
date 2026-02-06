@@ -1,7 +1,10 @@
 package com.example.financial.controller;
 
 
-import com.example.financial.dto.*;
+import com.example.financial.dto.LoginDTO;
+import com.example.financial.dto.MfaVerifyDTO;
+import com.example.financial.dto.RecoveryJwtTokenDTO;
+import com.example.financial.dto.UserDTO;
 import com.example.financial.model.User;
 import com.example.financial.security.JwtTokenService;
 import com.example.financial.security.MFAService;
@@ -43,12 +46,6 @@ public class AuthController {
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
-//    @PostMapping("/login-customer")
-//    public ResponseEntity<RecoveryJwtTokenDTO> loginCustomer(@RequestBody LoginDTO loginDTO){
-//        RecoveryJwtTokenDTO token = userService.authenticateUserCustomer(loginDTO);
-//        return new ResponseEntity<>(token, HttpStatus.OK);
-//    }
-
     @Operation(summary = "Criar usuário administrador", description = "Cria um novo usuário administrador no sistema")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
@@ -69,38 +66,6 @@ public class AuthController {
     public ResponseEntity<?> createUserCustomer(@RequestBody UserDTO userDTO) {
         userService.createUserCustomer(userDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @Operation(summary = "Atualizar usuário", description = "Atualiza os dados de um usuário existente")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuário atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
-    @PutMapping("/update")
-    public ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO){
-        userService.updateUser(userDTO);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @Operation(summary = "Atualizar senha do usuário", description = "Atualiza a senha do usuário e retorna novo token JWT")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Senha atualizada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
-    @PutMapping("/update-password")
-    public ResponseEntity<RecoveryJwtTokenDTO> updatePassword(@RequestBody PasswordDTO passwordDTO){
-        return new ResponseEntity<>(userService.updatePassword(passwordDTO),HttpStatus.CREATED);
-    }
-
-    @Operation(summary = "Buscar usuário por email", description = "Retorna os dados de um usuário com base no email fornecido")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
-    @GetMapping("/get-user")
-    public ResponseEntity<UserDTO> getUser(@RequestParam String email){
-        return new ResponseEntity<>(userService.getByEmail(email), HttpStatus.OK);
     }
 
     @Operation(summary = "Teste de autenticação de cliente", description = "Endpoint de teste para validar autenticação de cliente")
