@@ -1,4 +1,4 @@
-FROM docker.io/library/eclipse-temurin:17-jdk-alpine AS builder
+FROM docker.io/library/amazoncorretto:17-alpine AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ COPY src src
 RUN ./gradlew bootJar --no-daemon
 
 # Runtime stage
-FROM docker.io/library/eclipse-temurin:17-jre-alpine
+FROM docker.io/library/amazoncorretto:17-alpine
 
 WORKDIR /app
 

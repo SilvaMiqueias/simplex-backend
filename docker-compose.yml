@@ -1,5 +1,5 @@
 # Simplex - Gerenciador de Finanças Pessoais
-# Podman Compose para desenvolvimento local
+# Podman/Docker Compose para deploy
 
 services:
   postgres:
@@ -13,7 +13,6 @@ services:
       - "5432:5432"
     volumes:
       - simplex-db-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:z,ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d financial"]
       interval: 10s
@@ -34,7 +33,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_FLYWAY_ENABLED: "false"
     ports:
-      - "8081:8080"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,7 +43,7 @@ services:
 
   frontend:
     build:
-      context: ./simplex-frotend
+      context: ./simplex-frontend
       dockerfile: Containerfile
     container_name: simplex-frontend
     ports:
